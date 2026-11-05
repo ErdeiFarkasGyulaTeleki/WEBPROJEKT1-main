@@ -1,11 +1,12 @@
 import userModel from '../models/userModel.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const UserController = {
     // Összes felhasználó lekérése
     async getAll(req, res) {
         try {
-            const users = await userModel.getAll(); 
+            const users = await userModel.getAll();
             res.json(users);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -37,7 +38,7 @@ const UserController = {
             const newUser = await userModel.create({ email, password: hashedPassword, name, phone, profileimage });
             res.status(201).json(newUser);
         } catch (error) {
-            if(error.code === 'ER_DUP_ENTRY') {
+            if (error.code === 'ER_DUP_ENTRY') {
                 res.status(400).json({ error: 'Ez az email cím már létezik' });
                 return;
             }
@@ -60,7 +61,13 @@ const UserController = {
                 res.status(401).json({ error: 'Hibás jelszó' });
                 return;
             }
-            res.json({ message: 'Sikeres bejelentkezés', user });
+
+            await userModel.updateLastLogin(user.id);
+
+            const accessToken = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
+            const refreshToken = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+            res.json({ message: 'Sikeres bejelentkezés', user, accessToken, refreshToken });
         } catch (error) {
             console.error('Error during login:', error);
             res.status(500).json({ error: 'Internal Server Error' });
