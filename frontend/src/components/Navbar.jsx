@@ -22,6 +22,9 @@ export default function Navbar() {
                 <li>
                     <NavLink to="/multi-form">Multi Form</NavLink>
                 </li>
+                <li>
+                    <NavLink to={"admin"}>Admin</NavLink>
+                </li>
             </ul>
         </nav>
     );

@@ -8,6 +8,7 @@ import TermekLista from "./components/TermekLista";
 import LoginForm from "./components/LoginForm";
 import RegForm from "./components/RegForm";
 import MultiForm from "./components/MultiForm";
+import AdminPage from "./components/AdminPage";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/user" element={<UserForm />} />
                     <Route path="/products" element={<TermekLista />} />
                     <Route path="/multi-form" element={<MultiForm />} />
+                    <Route path="/admin" element={<AdminPage />} />
                 </Routes>
                 <Footer />
             </Router>
