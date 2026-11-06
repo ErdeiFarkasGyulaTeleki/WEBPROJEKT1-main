@@ -67,17 +67,48 @@ const UserController = {
             const refreshToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
             res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'Strict',
-                maxAge: 7 * 24 * 6 * 60 * 1000
+                httpOnly: true, // Csak a szerver férhet hozzá
+                secure: false, // Csak HTTPS-en keresztül küldhető
+                sameSite: 'Strict', // CSRF elleni védelem
+                maxAge: 7 * 24 * 6 * 60 * 1000 // 7 nap
             });
 
-            res.json({ message: 'Sikeres bejelentkezés', user, accessToken, refreshToken });
+            res.json({ message: 'Sikeres bejelentkezés', accessToken });
         } catch (error) {
             console.error('Error during login:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
+    },
+
+    async test(req, res) {
+        res.json({ message: 'Test' });
+    },
+
+    async refreshToken(req, res) {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).json({ error: 'Nincs frissítő token' });
+        }
+
+        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
+            if (err) {
+                return res.status(401).json({ error: 'Érvénytelen frissítő token' });
+            }
+
+            const newAccessToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
+
+            return res.status(200).json({ message: '', newAccessToken });
+        });
+    },
+
+    async logout(req, res) {
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Strict'
+        });
+        res.status(200).json({ message: 'Sikeres kijelentkezés' });
     }
 }
 
