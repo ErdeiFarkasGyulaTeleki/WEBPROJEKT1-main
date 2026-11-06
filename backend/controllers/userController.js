@@ -61,11 +61,17 @@ const UserController = {
                 res.status(401).json({ error: 'Hibás jelszó' });
                 return;
             }
+            await userModel.updateLastLogin(user.id); // lastlogin frissítése
 
-            await userModel.updateLastLogin(user.id);
+            const accessToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
+            const refreshToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-            const accessToken = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
-            const refreshToken = jwt.sign({ id: user.id, email: user.email, name: user.name }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'Strict',
+                maxAge: 7 * 24 * 6 * 60 * 1000
+            })
 
             res.json({ message: 'Sikeres bejelentkezés', user, accessToken, refreshToken });
         } catch (error) {
