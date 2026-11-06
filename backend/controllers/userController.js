@@ -68,10 +68,10 @@ const UserController = {
 
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
+                secure: false,
                 sameSite: 'Strict',
                 maxAge: 7 * 24 * 6 * 60 * 1000
-            })
+            });
 
             res.json({ message: 'Sikeres bejelentkezés', user, accessToken, refreshToken });
         } catch (error) {
