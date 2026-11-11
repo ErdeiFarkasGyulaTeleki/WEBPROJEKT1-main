@@ -70,10 +70,17 @@ const UserController = {
                 httpOnly: true, // Csak a szerver férhet hozzá
                 secure: false, // Csak HTTPS-en keresztül küldhető
                 sameSite: 'Strict', // CSRF elleni védelem
-                maxAge: 7 * 24 * 6 * 60 * 1000 // 7 nap
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 nap
             });
 
-            res.json({ message: 'Sikeres bejelentkezés', accessToken });
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true, // Csak a szerver férhet hozzá
+                secure: false, // Csak HTTPS-en keresztül küldhető
+                sameSite: 'Strict', // CSRF elleni védelem
+                maxAge: 10 * 60 * 1000 // 7 nap
+            });
+
+            res.json({ message: 'Sikeres bejelentkezés' });
         } catch (error) {
             console.error('Error during login:', error);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -98,7 +105,14 @@ const UserController = {
 
             const newAccessToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
 
-            return res.status(200).json({ message: '', newAccessToken });
+            res.cookie('accessToken', newAccessToken, {
+                httpOnly: true, // Csak a szerver férhet hozzá
+                secure: false, // Csak HTTPS-en keresztül küldhető
+                sameSite: 'Strict', // CSRF elleni védelem
+                maxAge: 10 * 60 * 1000 // 7 nap
+            });
+
+            return res.status(200).json({ message: 'Sikeres tokenfrissítés' });
         });
     },
 
@@ -108,6 +122,12 @@ const UserController = {
             secure: false,
             sameSite: 'Strict'
         });
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Strict'
+        });
+
         res.status(200).json({ message: 'Sikeres kijelentkezés' });
     }
 }
