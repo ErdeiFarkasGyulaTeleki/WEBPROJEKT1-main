@@ -9,6 +9,8 @@ import LoginForm from "./components/LoginForm";
 import RegForm from "./components/RegForm";
 import MultiForm from "./components/MultiForm";
 import AdminPage from "./components/AdminPage";
+import TestForm from "./components/TestForm";
+import Logout from "./components/Logout";
 
 function App() {
     return (
@@ -23,6 +25,8 @@ function App() {
                     <Route path="/products" element={<TermekLista />} />
                     <Route path="/multi-form" element={<MultiForm />} />
                     <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/test" element={<TestForm />} />
+                    <Route path="/logout" element={<Logout />} />
                 </Routes>
                 <Footer />
             </Router>

@@ -25,6 +25,12 @@ export default function Navbar() {
                 <li>
                     <NavLink to={"admin"}>Admin</NavLink>
                 </li>
+                <li>
+                    <NavLink to={"test"}>Test</NavLink>
+                </li>
+                <li>
+                    <NavLink to={"logout"}>Logout</NavLink>
+                </li>
             </ul>
         </nav>
     );

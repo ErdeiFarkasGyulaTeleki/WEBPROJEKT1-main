@@ -9,7 +9,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import { fileURLToPath } from 'url';
-import  'dotenv/config';
+import 'dotenv/config';
 import cors from 'cors';
 
 //var indexRouter = require('./routes/index');
@@ -20,7 +20,10 @@ import termekekRouter from './routes/termekek.js';
 
 var app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
