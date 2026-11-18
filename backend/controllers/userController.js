@@ -69,14 +69,14 @@ const UserController = {
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true, // Csak a szerver férhet hozzá
                 secure: false, // Csak HTTPS-en keresztül küldhető
-                sameSite: 'Strict', // CSRF elleni védelem
+                sameSite: 'lax', // CSRF elleni védelem
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 nap
             });
 
             res.cookie('accessToken', accessToken, {
                 httpOnly: true, // Csak a szerver férhet hozzá
                 secure: false, // Csak HTTPS-en keresztül küldhető
-                sameSite: 'Strict', // CSRF elleni védelem
+                sameSite: 'lax', // CSRF elleni védelem
                 maxAge: 10 * 60 * 1000 // 7 nap
             });
 
