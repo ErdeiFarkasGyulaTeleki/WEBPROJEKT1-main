@@ -1,14 +1,36 @@
-import TermekController from "./termekController";
 import { expect, jest, test } from '@jest/globals';
 
-const mockedModel = jest.mock('../models/termekModel');
+const termekModelMock = {
+  getAll: jest.fn(),
+  getById: jest.fn(),
+  create: jest.fn()
+};
 
-test('a', async () => {
-  const resultMock = {};
+jest.unstable_mockModule('../models/termekModel.js', () => ({
+  default: termekModelMock
+}));
 
-  mockedModel.getAll = jest
-    .fn()
-    .mockResolvedValue([{ id: 1, nev: 'Termék 1', ar: 1000, keszlet: 10 }]);
+const { default: TermekController } = await import('./termekController.js');
 
-  await TermekController.getAll({ params: {} }, resultMock);
+const createResponse = () => {
+  const res = {
+    status: jest.fn(),
+    json: jest.fn()
+  };
+
+  res.status.mockReturnValue(res);
+  res.json.mockReturnValue(res);
+
+  return res;
+}
+
+test('Sample test case', async () => {
+  const products = [{ id: 1, nev: "Keyboard" }];
+  termekModelMock.getAll.mockResolvedValue(products);
+
+  const res = createResponse();
+
+  const result = await TermekController.getAll({ params: {} }, res);
+
+  expect(result).toBeUndefined();
 });
