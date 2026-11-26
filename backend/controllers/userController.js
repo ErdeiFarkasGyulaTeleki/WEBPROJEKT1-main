@@ -1,6 +1,18 @@
 import userModel from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
 
 const UserController = {
     // Összes felhasználó lekérése
@@ -32,7 +44,18 @@ const UserController = {
 
     // Új felhasználó hozzáadása
     async create(req, res) {
+        upload.single('profilKep')(req, res, async function (err) {
+            if (err) {
+                return res.status(500).json({ error: 'Hiba a profilkép betöltése során' });
+            }
+        })
+
         const { email, password, name, phone, profileimage } = req.body;
+
+        if (!password || !email || !name) {
+            return res.status(404).json({ error: 'Hiányos adatok!' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10); // Jelszó hash-elése
         try {
             const newUser = await userModel.create({ email, password: hashedPassword, name, phone, profileimage });
@@ -50,16 +73,19 @@ const UserController = {
     // Login
     async login(req, res) {
         const { email, password } = req.body;
+        console.log(email, password)
         try {
+            if (!password || !email) {
+                return res.status(404).json({ error: 'Hiányos adatok!' });
+            }
+
             const user = await userModel.getByEmail(email);
             if (!user) {
-                res.status(404).json({ error: 'Nincs ilyen felhasználó' });
-                return;
+                return res.status(404).json({ error: 'Nincs ilyen felhasználó' });
             }
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                res.status(401).json({ error: 'Hibás jelszó' });
-                return;
+                return res.status(401).json({ error: 'Hibás jelszó' });
             }
             await userModel.updateLastLogin(user.id); // lastlogin frissítése
 
